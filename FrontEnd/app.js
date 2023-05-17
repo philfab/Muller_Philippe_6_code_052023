@@ -1,12 +1,19 @@
+"use strict";
+
 debugger;
 const API = "http://localhost:5678/api/";
 const API_WORKS = API + "works";
 const API_CATEGORIES = API + "categories";
+const galleryElt = document.querySelector(".gallery");
+const loginNav = document.querySelector("ul li:nth-child(3)");
+const filterElt = document.querySelector(".filtres");
+
 
 let galleryWorks = null;
-const galleryElt = document.querySelector(".gallery");
-let buttonSelected = document.querySelector(".button-selected");
-buttonSelected.addEventListener("click", filterClick);
+let buttonSelectedElt = document.querySelector(".button-selected");
+
+buttonSelectedElt.addEventListener("click", filterClick);
+loginNav.addEventListener("click", logInOut);
 
 async function getData(url) {
   try {
@@ -40,7 +47,10 @@ async function fillWorks() {
 }
 
 function fillWithAllWorks() {
-  galleryElt.innerHTML = "";
+
+  while (galleryElt.firstChild) {
+    galleryElt.removeChild(galleryElt.firstChild);
+}
 
   for (const work of galleryWorks) {
     galleryElt.appendChild(work);
@@ -48,9 +58,9 @@ function fillWithAllWorks() {
 }
 
 function updateButtonStyle(buttonFilter) {
-  buttonSelected.classList.remove("button-selected");
+  buttonSelectedElt.classList.remove("button-selected");
   buttonFilter.classList.add("button-selected");
-  buttonSelected = buttonFilter;
+  buttonSelectedElt = buttonFilter;
 }
 
 function updateWorksUI(filters) {
@@ -66,7 +76,7 @@ function updateWorksUI(filters) {
 }
 
 async function filterClick(event) {
-  if (buttonSelected === event.target) return; //même bouton, on quitte
+  if (buttonSelectedElt === event.target) return; //même bouton, on quitte
 
   const buttonFilter = event.target;
   updateButtonStyle(buttonFilter);
@@ -81,10 +91,22 @@ async function filterClick(event) {
   updateWorksUI(filters);
 }
 
-async function createFilterButtons() {
-  const filterElt = document.querySelector(".filtres");
-  const arrayFilters = await getData(API_CATEGORIES);
+function logInOut() {
+  if (localStorage.getItem("token"))
+  {
+    let response = confirm("Vous souhaitez vous déconnecter ?");
+    if (response) {
+      localStorage.removeItem("token");
+      hideShowEdition(false);
+    }
+    return;
+  } 
+  window.location.href = "login.html";
+}
 
+async function createFilterButtons() {
+  
+  const arrayFilters = await getData(API_CATEGORIES);
   for (const filter of arrayFilters) {
     const button = document.createElement("button");
     button.classList.add("button");
@@ -95,6 +117,26 @@ async function createFilterButtons() {
   }
 }
 
-galleryElt.innerHTML = "";
-fillWorks();
-createFilterButtons();
+function hideShowEdition (action) {
+  if (action)
+  {
+    loginNav.textContent = "logout";
+    filterElt.style.visibility = "hidden";
+    filterElt.style.marginBottom = 0;
+  }
+  else
+  {
+    loginNav.textContent = "login";
+    filterElt.style.visibility = "visible";
+    filterElt.style.marginBottom = "50px";
+  }
+  document.querySelectorAll(".edit").forEach(e => e.style.display = (action) ? "inline-block" : "none");
+} 
+
+  fillWorks();
+  createFilterButtons();
+
+  if (localStorage.getItem("token"))
+    hideShowEdition(true);
+
+
