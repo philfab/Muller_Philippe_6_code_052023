@@ -2,6 +2,7 @@
    v2.0 | 20110126
    License: none (public domain)
 */
+* { box-sizing: border-box; }
 
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
@@ -160,6 +161,73 @@ li:hover {
   font-size: 0.9rem;
 }
 
+.modal {
+  display: none;
+  /* display: flex; */
+  justify-content: center;
+  align-items: center;
+  position: fixed; 
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1; /*au cas ou d'autres élements sont fixed*/
+  background-color: rgba(0,0,0,0.8);
+}
+
+.modal-wrapper {
+  position: relative;
+  width: 800px;
+  padding: 20px;
+  overflow: auto;
+  max-width: calc(100vw - 20px);
+  max-height: calc(100vh - 20px);
+  border-radius: 20px;
+  background-color: white;
+}
+
+.modal-wrapper > h2 {
+  margin: 40px auto;
+  text-align: center;
+  font-family: 'Work Sans';
+  color: black;
+  font-weight: 400;
+}
+
+.hide-modal {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  font-size: 28px;
+  background: none;
+  border: none;
+}
+
+.edit,
+.hide-modal,
+.modal-wrapper > .button,
+.gallery-edit figure {
+  cursor: pointer;
+}
+
+.line {
+  height: 2px;
+  width: 80%;
+  margin: auto;
+  background-color: #B3B3B3;
+}
+
+.modal-wrapper > .button, a {
+  display: block;
+  margin: 40px auto;
+}
+
+.modal-wrapper > a {
+  text-decoration: none;
+  font-family: 'Syne';
+  text-align: center;
+  color: #D65353;
+}
 
 figure span {
   display: inline-block;
@@ -202,6 +270,48 @@ li:hover {
 	grid-template-columns: 1fr 1fr 1fr;
 	grid-column-gap: 20px;
 	grid-row-gap: 20px;
+}
+
+.gallery-edit {
+  width: 80%;
+  grid-template-columns:repeat(5,1fr);
+  margin: 50px auto;
+}
+
+.fa-container {
+  display: none;
+  position: absolute;
+  top: 7px;
+  right: 5px;
+}
+
+.fa-container > :nth-child(1) {
+  display: none;
+}
+
+.gallery-edit .fa-container {
+  display: inline-block;
+}
+
+.gallery-edit figure {
+  transition: transform 0.2s ease-in-out;
+}
+
+.gallery-edit figure:hover nav button:nth-child(1) {
+  display: inline-block;
+}
+
+.gallery-edit figure:hover {
+  transform: scale(1.2);
+}
+
+.icon-button {
+  margin-left: 5px;
+  border: none;
+  border-radius: 2px;
+  color: white;
+  background: black;
+  cursor: pointer;
 }
 
 .gallery img {

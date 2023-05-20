@@ -14,13 +14,14 @@
     <link rel="stylesheet" href="./assets/style.css">
   </head>
   <body>
+
     <header class = "edit header-edit">
       <div>
         <span ><i class = "fa-regular fa-pen-to-square"></i> Mode édition</span>
         <button class="button-edit">publier les changements</button>
       </div>
-
     </header>
+
     <header>
       <h1>Sophie Bluel <span>Architecte d'intérieur</span></h1>
       <nav>
@@ -32,6 +33,7 @@
         </ul>
       </nav>
     </header>
+
     <main>
       <section id="introduction">
         <figure>
@@ -62,15 +64,15 @@
 
         <section class="container-edit">
           <h2>Mes Projets</h2>
-          <span class = "edit"><i class = "fa-regular fa-pen-to-square"></i> modifier</span>
+          <span class = "edit showModal"><i class = "fa-regular fa-pen-to-square"></i> modifier</span>
         </section>
       
         <section class = "filtres">
-          <button data-filter = "0" class = "button button-selected">
+          <button data-categoryId = "0" class = "button button-selected">
             Tous
           </button>
         </section>
-        <div class="gallery">
+        <div id="galleryMain" class="gallery">
          
         </div>
       </section>
@@ -96,6 +98,22 @@
         </ul>
       </nav>
     </footer>
+
+    <aside class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-wrapper">
+        <h2 id="modalTitle">Galerie photo</h2>
+        <button class="hide-modal">&times;</button>
+         <section id="galleryEdit" class="gallery gallery-edit">
+
+         </section>
+        <div class="line"></div>
+        <button class="button button-selected">
+          Ajouter une photo
+        </button>
+        <a href="#">Supprimer la galerie</a>
+        
+      </div>
+    </aside>
 
     <script src="app.js"></script>
   </body>
