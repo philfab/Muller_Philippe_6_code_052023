@@ -32,37 +32,40 @@ async function getData(url) {
   }
 }
 
+function createFigure (work) {
+  let figure = document.createElement("figure");
+  figure.style.position = "relative";
+  figure.setAttribute("data-categoryId", work.categoryId);
+  figure.setAttribute("data-id", work.id);
+  let img = document.createElement("img");
+  img.src = work.imageUrl;
+  let figcaption = document.createElement("figcaption");
+  figcaption.textContent = work.title;
+  figure.appendChild(img);
+  figure.appendChild(figcaption);
+  return figure;
+}
+
+function createButton(classesBtn,classesIcon) {
+  const button = document.createElement("button");
+  const icon = document.createElement("i");
+  button.classList.add(...classesBtn.split(' '));
+  icon.classList.add(...classesIcon.split(' '));
+  button.appendChild(icon);
+  return button;
+}
+
 async function fillWorks() {
   const arrayWorks = await getData(API_WORKS);
 
   for (const work of arrayWorks) {
-    const figure = document.createElement("figure");
-    figure.style.position = "relative";
-
-    figure.setAttribute("data-categoryId", work.categoryId);
-    figure.setAttribute("data-id", work.id);
-    const img = document.createElement("img");
-    img.src = work.imageUrl;
-    const figcaption = document.createElement("figcaption");
-    figcaption.textContent = work.title;
-    figure.appendChild(img);
-    figure.appendChild(figcaption);
-
+    const figure =  createFigure(work);
     const nav = document.createElement("nav");
+
     nav.classList.add("fa-container");
 
-    const buttonExpand = document.createElement("button");
-    buttonExpand.classList.add("icon-button");
-    const iconExpand = document.createElement("i");
-    iconExpand.classList.add("fas", "fa-arrows-up-down-left-right");
-    buttonExpand.appendChild(iconExpand);
-    
-    const buttonTrash = document.createElement("button");
-    buttonTrash.classList.add("icon-button" , "icon-trash");
-    const iconTrash = document.createElement("i");
-    iconTrash.classList.add("fas", "fa-trash-can");
-    
-    buttonTrash.appendChild(iconTrash);
+    const buttonExpand = createButton("icon-button","fas fa-arrows-up-down-left-right");
+    const buttonTrash = createButton ("icon-button icon-trash","fas fa-trash-can");
 
     nav.appendChild(buttonExpand);
     nav.appendChild(buttonTrash);
