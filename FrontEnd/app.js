@@ -1,9 +1,10 @@
 "use strict";
-debugger;
+
 
 const API = "http://localhost:5678/api/";
-const API_WORKS = API + "works";
+const API_WORKS = API + "works/";
 const API_CATEGORIES = API + "categories";
+const MAX_FILE_SIZE = 4 * 1024 * 1024;
 
 const galleryElt = document.getElementById("galleryMain");
 const galleryEditElt = document.getElementById("galleryEdit");
@@ -12,12 +13,24 @@ const filterElt = document.querySelector(".filtres");
 const modalElt = document.querySelector(".modal");
 const showModal = document.querySelector(".showModal");
 const hideModal = document.querySelector(".hide-modal");
+const publishModifs = document.querySelector(".button-edit");
+const addWorkButtonElt = document.querySelector("#addWork");
 
 let galleryWorks = null;
 let buttonSelectedElt = document.querySelector(".button-selected");
 
 buttonSelectedElt.addEventListener("click", filterClick);
 loginNavElt.addEventListener("click", logInOut);
+document.querySelector("#formFile").addEventListener("change", loadFile);
+
+function loadFile(e){
+  const file = e.target.files[0];
+  
+  if (file.size > MAX_FILE_SIZE) {
+    alert("La taille du fichier dépasse 4mo !");
+    e.target.value = "";
+  }
+}
 
 async function getData(url) {
   try {
@@ -39,6 +52,8 @@ function createFigure (work) {
   figure.setAttribute("data-id", work.id);
   let img = document.createElement("img");
   img.src = work.imageUrl;
+  img.alt = work.title;
+
   let figcaption = document.createElement("figcaption");
   figcaption.textContent = work.title;
   figure.appendChild(img);
@@ -74,6 +89,7 @@ async function fillWorks() {
   }
   //on push les works dans un tableau pour ne pas faire des appels API inutiles
   galleryWorks = Array.from(galleryElt.children);
+  fillEditWithAllWorks();
 }
 
 function fillWithAllWorks() {
@@ -95,12 +111,10 @@ function removeWorkFromArray(array, dataId) {
 
 function deleteWork(event) {
   let dataId = event.target.closest("figure").dataset.id;
-  let response = confirm(`Supprimer la photo avec l'ID : ${dataId} ?`);
-    if (response) {
-      removeWorkFromArray(galleryWorks,dataId);
-      removeWorkFromColl(galleryElt,dataId);
+  let textImg = event.target.closest("figure").querySelector("img").alt;
+  let response = confirm(`Supprimer le projet : ${textImg} ?`);
+    if (response) 
       removeWorkFromColl(galleryEditElt,dataId);
-    }
 }
 
 function fillEditWithAllWorks() {
@@ -195,10 +209,90 @@ function hideShowEdition (action) {
   document.querySelectorAll(".edit").forEach(e => e.style.display = (action) ? "inline-block" : "none");
 } 
 
+
+async function updateWorks (worksDel, worksAdd)
+{
+  const token = localStorage.getItem("token");
+
+  if (worksDel.size > 0)
+  await deleteBDDWork(token, worksDel);
+
+  if (worksAdd.size > 0)
+  await addBDDWork(token, worksAdd);
+
+  alert("Modifications enregistrées !");
+  clearElt (galleryElt);
+  fillWorks();
+}
+
+async function deleteBDDWork(token, worksDel) {
+
+  for (let id of worksDel) 
+    try {
+      const response = await fetch(API_WORKS + id, {
+        method: "DELETE",
+        headers: {'Authorization': `Bearer ${token}`}
+      });
+
+      if (!response.ok) 
+        throw new Error(response.status);
+
+      } catch (error) {
+        console.log("Erreur lors de la suppression : " + error) ;
+      }
+}
+
+async function addBDDWork (token, worksAdd) {
+
+  for (let id of worksAdd) 
+    try {
+      let formData = new FormData();
+      formData.append("image", votreImage); 
+      formData.append("title", votreTitre); 
+      formData.append("category", votreCategorie); 
+
+      const response = await fetch(API_WORKS, {
+        method: "POST",
+        headers: {'Authorization': `Bearer ${token}`},
+        body: formData,
+      });
+
+      if (!response.ok) 
+        throw new Error(response.status);
+
+      } catch (error) {
+        console.log("Erreur lors de l'ajout : " + error) ;
+      }
+}
+
+function showHideGallery (event)
+{
+  if (event === null || event.currentTarget.id === "backButton") {
+    addWorkButtonElt.style.display = "block";
+    document.querySelector(".back-modal").style.display  = "none";
+    document.querySelector(".modal-wrapper a").style.display = "block";
+    document.querySelector("#galleryEdit").style.display = "grid";
+    document.querySelector("#addForm").style.display = "none";
+    document.querySelector(".modal-wrapper h2").textContent = "Galerie photo";
+    document.querySelector(".modal-wrapper > .line").style.display = "block";
+    document.querySelector(".button-validate").disabled = false;
+  }
+  else {
+    addWorkButtonElt.style.display = "none";
+    document.querySelector(".back-modal").style.display = "inline-block";
+    document.querySelector(".modal-wrapper a").style.display = "none";
+    document.querySelector("#galleryEdit").style.display = "none";
+    document.querySelector("#addForm").style.display = "flex";
+    document.querySelector(".modal-wrapper h2").textContent = "Ajout photo";
+    document.querySelector(".modal-wrapper > .line").style.display = "none";
+    document.querySelector(".button-validate").disabled = true;
+  }
+}
+
 showModal.onclick = ()=> {
+  showHideGallery (null);
   modalElt.style.display = "flex";
   showModal.setAttribute("aria-expanded", "true");//contenu accéssibilité associé au bouton visible (aria)
-  fillEditWithAllWorks();
 }
 
 hideModal.onclick = ()=> {
@@ -211,6 +305,23 @@ window.onclick = (event)=> {
     modalElt.style.display = "none";
     showModal.setAttribute("aria-expanded", "false");
   }
+}
+
+publishModifs.onclick = ()=> {
+  let setNew = new Set(Array.from(galleryEditElt.children).map(e => e.getAttribute("data-id")));
+  let setOld = new Set(galleryWorks.map(e => e.getAttribute("data-id")));
+  let worksDel = new Set([...setOld].filter(x => !setNew.has(x)));
+  let worksAdd = new Set([...setNew].filter(x => !setOld.has(x)));
+  
+  if (worksDel.size + worksAdd.size === 0 )
+  {
+   alert ("Pas de modifications !");
+   return;
+  }
+
+  let response = confirm("Publier les changements effectués ?");
+  if (response)
+  updateWorks (worksDel,worksAdd);
 }
 
   fillWorks();

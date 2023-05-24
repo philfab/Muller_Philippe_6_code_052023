@@ -7,25 +7,20 @@ const API_LOGIN = "http://localhost:5678/api/users/login";
 async function submitEmailPassword(event) {
   event.preventDefault();
 
-  const headers = {
-    "Accept": "application/json",
-    "Content-Type": "application/json"
-  };
-
   const emailPass = {
-      email: event.target.email.value,
-      password: event.target.password.value
+    email: event.target.email.value,
+    password: event.target.password.value
   };
 
   try {
       const response = await fetch(API_LOGIN, {
-          method: "POST",
-          headers: headers,
-          body: JSON.stringify(emailPass)
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(emailPass)
       });
 
       if (!response.ok) {
-          throw new Error(response.status);
+        throw new Error(response.status);
       }
 
       const result = await response.json();

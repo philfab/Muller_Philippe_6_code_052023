@@ -26,13 +26,14 @@
       <h1>Sophie Bluel <span>Architecte d'intérieur</span></h1>
       <nav>
         <ul>
-          <li>projets</li>
-          <li>contact</li>
+          <li><a href="#portfolio">projets</a></li>
+          <li><a href="#contact">contact</a></li>
           <li>login</li>
           <li><img src="./assets/icons/instagram.png" alt="Instagram" /></li>
         </ul>
       </nav>
     </header>
+
 
     <main>
       <section id="introduction">
@@ -103,11 +104,43 @@
       <div class="modal-wrapper">
         <h2 id="modalTitle">Galerie photo</h2>
         <button class="hide-modal">&times;</button>
-         <section id="galleryEdit" class="gallery gallery-edit">
+        <button id="backButton" onClick="showHideGallery(event)" class="hide-modal back-modal">
+          <i class="fa fa-arrow-left"></i>
+        </button>
+         <section id="galleryEdit" class="gallery gallery-edit"></section>
 
-         </section>
+         <form id="addForm">
+            <div class="addFile-container">
+              <i class="fa fa-image"></i>
+
+              <label for="formFile">
+                <span class="button-add button"> + Ajouter photo</span>
+              </label>
+              <p>jpg, png : 4mo max</p>
+              <input id="formFile" type="file" accept=".jpg, .jpeg, .png" required/>
+              
+              <img id="preview" src="" alt="Image preview"/>
+  
+            </div>
+            
+            <label for="title">Titre</label>
+            <input type="text" id="title" name="title" required>
+            
+            <label for="category">Catégorie</label>
+            <select id="category" name="category" required>
+              <option value=""></option>
+              <option value="cat1">Objets</option>
+              <option value="cat2">Appartements</option>
+              <option value="cat3">Hôtels & restaurants</option>
+            </select>
+          
+            <div class="line"></div>
+            <input class="button button-validate" type="submit" value="Valider">
+          </form>
+          
+
         <div class="line"></div>
-        <button class="button button-selected">
+        <button id="addWork" onClick="showHideGallery(event)" class="button button-selected">
           Ajouter une photo
         </button>
         <a href="#">Supprimer la galerie</a>

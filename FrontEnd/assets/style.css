@@ -84,12 +84,13 @@ h2 {
 	font-size: 30px;
 	color: #1D6154
 }
+
 nav ul {
 	display: flex;
 	align-items: center;
 	list-style-type: none;
-
 }
+
 nav li {
 	padding: 0 10px;
 	font-size: 1.2em;
@@ -141,10 +142,6 @@ li:hover {
   margin-top: 100px;
 }
 
-.edit {
- display: none;
-}
-
 .header-edit {
   width: 100%;
   margin: 0;
@@ -161,9 +158,20 @@ li:hover {
   font-size: 0.9rem;
 }
 
+.button-validate:disabled {
+  background-color: #A7A7A7;
+  color: white;
+  border: #A7A7A7;
+}
+
+.button-validate:disabled:hover {
+  background-color: #A7A7A7;
+  color: white;
+  cursor: not-allowed;
+}
+
 .modal {
   display: none;
-  /* display: flex; */
   justify-content: center;
   align-items: center;
   position: fixed; 
@@ -203,7 +211,15 @@ li:hover {
   border: none;
 }
 
-.edit,
+.back-modal {
+  display: none;
+  top: 23px;
+  font-size: 22px;
+  right: initial;
+}
+
+.container-edit span,
+.button-edit,
 .hide-modal,
 .modal-wrapper > .button,
 .gallery-edit figure {
@@ -211,10 +227,15 @@ li:hover {
 }
 
 .line {
-  height: 2px;
+  height: 1.5px;
   width: 80%;
   margin: auto;
   background-color: #B3B3B3;
+}
+
+form > .line {
+  margin-top: 50px;
+  width: 100%;
 }
 
 .modal-wrapper > .button, a {
@@ -222,11 +243,45 @@ li:hover {
   margin: 40px auto;
 }
 
+select {
+  background-color: white;
+}
+
+.addFile-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #E8F1F6;
+  border-radius: 10px;
+}
+
+#formFile,
+
+.fa-image {
+  margin-top: 30px;
+  font-size: 80px;
+  color: #B9C5CC;
+}
+
+.addFile-container p {
+  margin: 0 0 30px 0;
+}
+
+a {
+  text-decoration: none;
+ }
+ 
 .modal-wrapper > a {
   text-decoration: none;
   font-family: 'Syne';
   text-align: center;
   color: #D65353;
+}
+
+#addForm {
+  width: 80%;
+  margin: auto;
 }
 
 figure span {
@@ -240,13 +295,27 @@ article span {
 }
 
 .button {
-  border-radius: 20px;
+  height: 50px;
+  border-radius: 60px;
   padding: 7px 20px;
   font-size: 1rem;
   font-family: 'Syne';
   border: solid 2px #1D6154;
   color: #1D6154;
-  background-color: white;
+  min-width: 180px;
+}
+
+.button-add {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Work Sans';
+  border: none;
+  font-weight: bold;
+  background-color: #CBD6DC;
+  color: #306685;
+  font-size: 1.2rem;
+  cursor: pointer;
 }
 
 li:hover {
@@ -285,7 +354,10 @@ li:hover {
   right: 5px;
 }
 
-.fa-container > :nth-child(1) {
+.fa-container > :nth-child(1),
+.edit,
+#formFile,
+#preview {
   display: none;
 }
 
@@ -339,7 +411,8 @@ li:hover {
 }
 
 #contact form,
-.login form {
+.login form,
+.modal-wrapper form{
 	text-align: left;
 	margin-top:30px;
 	display: flex;
@@ -347,7 +420,9 @@ li:hover {
 }
 
 #contact input, 
-.login input {
+.login input,
+.modal-wrapper input,
+.modal-wrapper select {
 	height: 50px;
 	font-size: 1.2em;
 	border: none;
@@ -355,8 +430,13 @@ li:hover {
 }
 
 #contact label,
-.login label {
+.login label,
+.modal-wrapper label {
 	margin: 2em 0 1em 0;
+}
+
+.modal-wrapper label{
+  margin: 1em 0;
 }
 
 .login a {
@@ -384,4 +464,3 @@ footer nav ul {
 	justify-content: flex-end;
 	margin: 2em
 }
-
