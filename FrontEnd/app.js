@@ -40,6 +40,7 @@ title.addEventListener("input", validateForm);
 category.addEventListener("change", validateForm);
 preview.addEventListener("click", ()=> {imageFile.click();});
 
+
 async function getData(url) {
   try {
     const response = await fetch(url);
@@ -53,6 +54,7 @@ async function getData(url) {
   }
 }
 
+
 function createImage(src, alt) {
   let img = document.createElement("img");
   img.src = src;
@@ -60,6 +62,12 @@ function createImage(src, alt) {
   return img;
 }
 
+/**
+ * Ajoute des attributs à un element html.
+ *
+ * @param {HTMLElement} element
+ * @param {Object} attrs - les attributs (clefs-valeurs)
+ */
 function addAttributes (element, attrs) {
   for (let key in attrs) {
     element.setAttribute(key, attrs[key]);
@@ -83,7 +91,7 @@ function createFigure (work) {
   return figure;
 }
 
-function createButton(classesBtn,classesIcon) {
+function createButton(classesBtn, classesIcon) {
   const button = document.createElement("button");
   const icon = document.createElement("i");
   button.classList.add(...classesBtn.split(' '));
@@ -100,6 +108,14 @@ function createNav(buttonExpand,buttonTrash) {
   return nav;
 }
 
+/**
+ * Fonction asynchrone pour remplir la galerie depuis le backend à partir de l'API.
+ * Crée des éléments figure, nav, et deux boutons en haut à droite de chaque image en mode édition.
+ * Crée le tableau "galleryWorks" à partir de de l'htmlcollection galleryElt.children pour ne pas appeller
+ * l'API à chaque demande.
+ *
+ * @async
+ */
 async function fillWorks() {
   const arrayWorks = await getData(API_WORKS);
 
@@ -111,38 +127,53 @@ async function fillWorks() {
     figure.appendChild(nav);
     galleryElt.appendChild(figure);
   }
-  //on push les works dans un tableau pour ne pas faire des appels API inutiles
   galleryWorks = Array.from(galleryElt.children);
   fillEditWithAllWorks();
 }
 
 function fillWithAllWorks() {
+  clearElt (galleryElt);
 
-clearElt (galleryElt);
-
-  for (const work of galleryWorks) {
+  for (const work of galleryWorks)
     galleryElt.appendChild(work);
-  }
 }
 
+/**
+ * Supprime un élément d'une collection depuis son attribut data-id.
+ * La collection est convertie en tableau puis itère sur chaque item pour checker son data-id et le supprime.
+ *
+ * @param {HTMLElement} collection - La collection HTML.
+ * @param {string} dataId - La valeur de l'attribut data-id.
+ */
 function removeWorkFromColl(collection, dataId) {
   Array.from(collection.children).forEach(e => e.dataset.id === dataId && e.parentNode.removeChild(e));
 }
 
+/**
+ * Idem mais avec un tableau. On supprime par rapport à l'index qui est récupéré grâce à son data-id.
+ *
+ * @param {Array} array - Le tableau à partir duquel supprimer un élément.
+ * @param {string} dataId - La valeur de l'attribut data-id de l'élément à supprimer.
+ */
 function removeWorkFromArray(array, dataId) {
   array.splice(array.findIndex(e => e.dataset.id === dataId), 1);
 }
 
+/**
+ * Supprime un projet d'une collection depuis son attribut data-id.
+ * Demande de confirmation avec une boite de dialogue.
+ * @param {string} event - Le bouton à l'origine du click de suppression.
+ */
 function deleteWork(event) {
   let dataId = event.target.closest("figure").dataset.id;
   let textImg = event.target.closest("figure").querySelector("img").alt;
   let response = confirm(`Supprimer le projet : ${textImg} ?`);
     if (response) 
-      removeWorkFromColl(galleryEditElt,dataId);
+      removeWorkFromColl(galleryEditElt, dataId);
 }
 
 function fillEditWithAllWorks() {
-  
+
   clearElt (galleryEditElt);
 
   galleryWorks.forEach(figure => {
@@ -217,14 +248,12 @@ async function createFilterButtons() {
 }
 
 function hideShowEdition (action) {
-  if (action)
-  {
+  if (action) {
     loginNavElt.textContent = "logout";
     filterElt.style.visibility = "hidden";
     filterElt.style.marginBottom = 0;
   }
-  else
-  {
+  else {
     loginNavElt.textContent = "login";
     filterElt.style.visibility = "visible";
     filterElt.style.marginBottom = "50px";
@@ -232,9 +261,7 @@ function hideShowEdition (action) {
   document.querySelectorAll(".edit").forEach(e => e.style.display = (action) ? "inline-block" : "none");
 } 
 
-
-async function updateWorks (worksDel, worksAdd)
-{
+async function updateWorks (worksDel, worksAdd) {
   const token = localStorage.getItem("token");
 
   if (worksDel.size > 0)
@@ -261,18 +288,18 @@ async function deleteBDDWork(token, worksDel) {
         throw new Error(response.status);
 
       } catch (error) {
-        console.log("Erreur lors de la suppression : " + error) ;
+        console.log("Erreur lors de la suppression : " + error);
       }
 }
 
 async function addBDDWork (token, worksAdd) {
-
+//TODO : worksAdd = set des works ajoutes dans galleryeditelt(index) l'id ne sert pas  (primary autoincrement id sql) 
   for (let id of worksAdd) 
     try {
       let formData = new FormData();
-      formData.append("image", votreImage); 
-      formData.append("title", votreTitre); 
-      formData.append("category", votreCategorie); 
+      formData.append("image", image);
+      formData.append("title", title);
+      formData.append("category", categorieID);
 
       const response = await fetch(API_WORKS, {
         method: "POST",
@@ -325,7 +352,7 @@ function showHideGallery (event)
   }
 }
 
-function loadFile(e){
+function loadFile(e) {
   const file = e.target.files[0];
   
   if (file.size > MAX_FILE_SIZE) {
