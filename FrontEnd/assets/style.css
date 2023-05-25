@@ -218,11 +218,15 @@ li:hover {
   right: initial;
 }
 
+
+select,
+#preview,
 .container-edit span,
 .button-edit,
 .hide-modal,
 .modal-wrapper > .button,
-.gallery-edit figure {
+.gallery-edit figure,
+input[type="submit"] {
   cursor: pointer;
 }
 
@@ -247,24 +251,26 @@ select {
   background-color: white;
 }
 
-.addFile-container {
+#elemsContainer {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+fieldset {
   background-color: #E8F1F6;
   border-radius: 10px;
 }
 
-#formFile,
-
+#imFile,
 .fa-image {
   margin-top: 30px;
   font-size: 80px;
   color: #B9C5CC;
 }
 
-.addFile-container p {
+#elemsContainer p {
   margin: 0 0 30px 0;
 }
 
@@ -303,6 +309,7 @@ article span {
   border: solid 2px #1D6154;
   color: #1D6154;
   min-width: 180px;
+  background-color: white
 }
 
 .button-add {
@@ -354,9 +361,16 @@ li:hover {
   right: 5px;
 }
 
+#preview {
+  max-height: 232px;
+  width: auto;
+  object-fit: contain;
+  margin: 0 auto;
+}
+
 .fa-container > :nth-child(1),
 .edit,
-#formFile,
+#imFile,
 #preview {
   display: none;
 }

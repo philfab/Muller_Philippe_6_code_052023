@@ -101,51 +101,49 @@
     </footer>
 
     <aside class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <div class="modal-wrapper">
-        <h2 id="modalTitle">Galerie photo</h2>
-        <button class="hide-modal">&times;</button>
-        <button id="backButton" onClick="showHideGallery(event)" class="hide-modal back-modal">
-          <i class="fa fa-arrow-left"></i>
-        </button>
-         <section id="galleryEdit" class="gallery gallery-edit"></section>
+        <div class="modal-wrapper">
+            <h2 id="modalTitle">Galerie photo</h2>
+            <button class="hide-modal">&times;</button>
+            <button id="backButton" onClick="showHideGallery(event)" class="hide-modal back-modal">
+            <i class="fa fa-arrow-left"></i>
+            </button>
+            <section id="galleryEdit" class="gallery gallery-edit"></section>
 
-         <form id="addForm">
-            <div class="addFile-container">
-              <i class="fa fa-image"></i>
+            <form id="addForm">
+                <fieldset> 
+                    <div id="elemsContainer">
+                        <i class="fa fa-image"></i>
+                        <label for="imFile">
+                            <span class="button-add button"> + Ajouter photo</span>
+                        </label>
+                        <p>jpg, png : 4mo max</p>
+                    </div>
 
-              <label for="formFile">
-                <span class="button-add button"> + Ajouter photo</span>
-              </label>
-              <p>jpg, png : 4mo max</p>
-              <input id="formFile" type="file" accept=".jpg, .jpeg, .png" required/>
-              
-              <img id="preview" src="" alt="Image preview"/>
-  
-            </div>
-            
-            <label for="title">Titre</label>
-            <input type="text" id="title" name="title" required>
-            
-            <label for="category">Catégorie</label>
-            <select id="category" name="category" required>
-              <option value=""></option>
-              <option value="cat1">Objets</option>
-              <option value="cat2">Appartements</option>
-              <option value="cat3">Hôtels & restaurants</option>
-            </select>
-          
+                    <input id="imFile" type="file" accept=".jpg, .jpeg, .png" required/>
+                    <img id="preview" src="" alt="Image preview"/>
+                </fieldset>
+
+                <label for="title">Titre</label>
+                <input type="text" id="title" name="title" required>
+
+                <label for="category">Catégorie</label>
+                <select id="category" name="category" required>
+                    <option value=""></option>
+                    <option value="1">Objets</option>
+                    <option value="2">Appartements</option>
+                    <option value="3">Hôtels & restaurants</option>
+                </select>
+
+                <div class="line"></div>
+                <input class="button button-validate" type="submit" value="Valider">
+            </form>
+
             <div class="line"></div>
-            <input class="button button-validate" type="submit" value="Valider">
-          </form>
-          
-
-        <div class="line"></div>
-        <button id="addWork" onClick="showHideGallery(event)" class="button button-selected">
-          Ajouter une photo
-        </button>
-        <a href="#">Supprimer la galerie</a>
-        
-      </div>
+            <button id="addWork" onClick="showHideGallery(event)" class="button button-selected">
+                Ajouter une photo
+            </button>
+            <a href="#">Supprimer la galerie</a>
+        </div>
     </aside>
 
     <script src="app.js"></script>

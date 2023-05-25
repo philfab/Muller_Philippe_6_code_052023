@@ -1,6 +1,13 @@
 "use strict";
 
-
+class TempFormData {
+  constructor(imageUrl, title, categoryId) {
+    this.id = Math.max(...galleryWorks.map(e => e.getAttribute("data-id"))) + 1;//on récup le data max et on ajoute 1
+    this.imageUrl = imageUrl;
+    this.title = title;
+    this.categoryId = categoryId;
+  }
+}
 const API = "http://localhost:5678/api/";
 const API_WORKS = API + "works/";
 const API_CATEGORIES = API + "categories";
@@ -14,23 +21,24 @@ const modalElt = document.querySelector(".modal");
 const showModal = document.querySelector(".showModal");
 const hideModal = document.querySelector(".hide-modal");
 const publishModifs = document.querySelector(".button-edit");
-const addWorkButtonElt = document.querySelector("#addWork");
+const validateButton = document.querySelector(".button-validate");
+const form = document.getElementById("addForm");
+const imageFile = document.getElementById("imFile");
+const title = document.getElementById("title");
+const category = document.getElementById("category");
+const elemsContainer = document.getElementById("elemsContainer");
 
 let galleryWorks = null;
 let buttonSelectedElt = document.querySelector(".button-selected");
 
 buttonSelectedElt.addEventListener("click", filterClick);
 loginNavElt.addEventListener("click", logInOut);
-document.querySelector("#formFile").addEventListener("change", loadFile);
-
-function loadFile(e){
-  const file = e.target.files[0];
-  
-  if (file.size > MAX_FILE_SIZE) {
-    alert("La taille du fichier dépasse 4mo !");
-    e.target.value = "";
-  }
-}
+imageFile.addEventListener("change", loadFile);
+form.addEventListener("submit", submitForm);
+imageFile.addEventListener("change", validateForm);
+title.addEventListener("input", validateForm);
+category.addEventListener("change", validateForm);
+preview.addEventListener("click", ()=> {imageFile.click();});
 
 async function getData(url) {
   try {
@@ -45,17 +53,31 @@ async function getData(url) {
   }
 }
 
+function createImage(src, alt) {
+  let img = document.createElement("img");
+  img.src = src;
+  img.alt = alt;
+  return img;
+}
+
+function addAttributes (element, attrs) {
+  for (let key in attrs) {
+    element.setAttribute(key, attrs[key]);
+  }
+}
+
+function createFigcaption(work) {
+  let figcaption = document.createElement("figcaption");
+  figcaption.textContent = (work instanceof TempFormData) ? "éditer" : work.title;
+  return figcaption;
+}
+
 function createFigure (work) {
   let figure = document.createElement("figure");
   figure.style.position = "relative";
-  figure.setAttribute("data-categoryId", work.categoryId);
-  figure.setAttribute("data-id", work.id);
-  let img = document.createElement("img");
-  img.src = work.imageUrl;
-  img.alt = work.title;
-
-  let figcaption = document.createElement("figcaption");
-  figcaption.textContent = work.title;
+  addAttributes (figure,{ "data-categoryId": work.categoryId, "data-id": work.id })
+  const img = createImage(work.imageUrl, work.title);
+  const figcaption = createFigcaption(work);
   figure.appendChild(img);
   figure.appendChild(figcaption);
   return figure;
@@ -70,20 +92,22 @@ function createButton(classesBtn,classesIcon) {
   return button;
 }
 
+function createNav(buttonExpand,buttonTrash) {
+  const nav = document.createElement("nav");
+  nav.classList.add("fa-container");
+  nav.appendChild(buttonExpand);
+  nav.appendChild(buttonTrash);
+  return nav;
+}
+
 async function fillWorks() {
   const arrayWorks = await getData(API_WORKS);
 
   for (const work of arrayWorks) {
     const figure =  createFigure(work);
-    const nav = document.createElement("nav");
-
-    nav.classList.add("fa-container");
-
     const buttonExpand = createButton("icon-button","fas fa-arrows-up-down-left-right");
     const buttonTrash = createButton ("icon-button icon-trash","fas fa-trash-can");
-
-    nav.appendChild(buttonExpand);
-    nav.appendChild(buttonTrash);
+    const nav = createNav(buttonExpand,buttonTrash);
     figure.appendChild(nav);
     galleryElt.appendChild(figure);
   }
@@ -181,7 +205,6 @@ function logInOut() {
 }
 
 async function createFilterButtons() {
-  
   const arrayCategories = await getData(API_CATEGORIES);
   for (const categoryId of arrayCategories) {
     const button = document.createElement("button");
@@ -265,29 +288,80 @@ async function addBDDWork (token, worksAdd) {
       }
 }
 
+function updateProperty(selector, property, value) {
+  let element = document.querySelector(selector);
+  if(element) {
+      if (property in element.style) {
+          element.style[property] = value;
+      } else {
+          element[property] = value;
+      }
+  }
+}
+
 function showHideGallery (event)
 {
   if (event === null || event.currentTarget.id === "backButton") {
-    addWorkButtonElt.style.display = "block";
-    document.querySelector(".back-modal").style.display  = "none";
-    document.querySelector(".modal-wrapper a").style.display = "block";
-    document.querySelector("#galleryEdit").style.display = "grid";
-    document.querySelector("#addForm").style.display = "none";
-    document.querySelector(".modal-wrapper h2").textContent = "Galerie photo";
-    document.querySelector(".modal-wrapper > .line").style.display = "block";
-    document.querySelector(".button-validate").disabled = false;
+    updateProperty("#addWork", "display", "block");
+    updateProperty(".back-modal", "display", "none");
+    updateProperty(".modal-wrapper a", "display", "block");
+    updateProperty("#galleryEdit", "display", "grid");
+    updateProperty("#addForm", "display", "none");
+    updateProperty(".modal-wrapper h2", "textContent", "Galerie photo");
+    updateProperty(".modal-wrapper > .line", "display", "block");
   }
   else {
-    addWorkButtonElt.style.display = "none";
-    document.querySelector(".back-modal").style.display = "inline-block";
-    document.querySelector(".modal-wrapper a").style.display = "none";
-    document.querySelector("#galleryEdit").style.display = "none";
-    document.querySelector("#addForm").style.display = "flex";
-    document.querySelector(".modal-wrapper h2").textContent = "Ajout photo";
-    document.querySelector(".modal-wrapper > .line").style.display = "none";
-    document.querySelector(".button-validate").disabled = true;
+    updateProperty("#addWork", "display", "none");
+    updateProperty(".back-modal", "display", "inline-block");
+    updateProperty(".modal-wrapper a", "display", "none");
+    updateProperty("#galleryEdit", "display", "none");
+    updateProperty("#addForm", "display", "flex");
+    updateProperty(".modal-wrapper h2", "textContent", "Ajout photo");
+    updateProperty(".modal-wrapper > .line", "display", "none");
+    updateProperty("#preview", "display", "none");
+    updateProperty(".button-validate", "disabled", true);
+    updateProperty("#elemsContainer", "display", "flex");
+    form.reset();
   }
 }
+
+function loadFile(e){
+  const file = e.target.files[0];
+  
+  if (file.size > MAX_FILE_SIZE) {
+    alert("La taille du fichier dépasse 4mo !");
+    e.target.value = "";
+  }
+  else {
+    let reader = new FileReader();
+    reader.addEventListener("load",(e)=> { //si la taille de l'image est importante
+        preview.src = e.target.result;
+        preview.style.display = "block";
+        elemsContainer.style.display = "none";
+    });
+    reader.readAsDataURL(file);
+}
+}
+
+function validateForm() {
+  if (imageFile.files.length > 0 && title.value !==  "" && category.value !== "") 
+    validateButton.disabled = false;
+  else
+    validateButton.disabled = true;
+  }
+
+  function submitForm(event) {//les données ont été check dans validateForm
+    event.preventDefault();
+    let formData = new TempFormData(preview.src, title.value, category.value);
+    let figure = createFigure(formData);
+    const buttonExpand = createButton("icon-button","fas fa-arrows-up-down-left-right");
+    const buttonTrash = createButton ("icon-button icon-trash","fas fa-trash-can");
+    buttonTrash.onclick = deleteWork;
+    const nav = createNav(buttonExpand,buttonTrash);
+    figure.appendChild(nav);
+    galleryEditElt.appendChild(figure);
+    showHideGallery (null);
+  }
 
 showModal.onclick = ()=> {
   showHideGallery (null);
