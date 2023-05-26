@@ -2,7 +2,9 @@
 
 class TempFormData {
   constructor(imageUrl, title, categoryId) {
-    this.id = Math.max(...galleryWorks.map(e => e.getAttribute("data-id"))) + 1;//on récup le data max et on ajoute 1
+    let idMaxArray = Math.max(...galleryWorks.map(e => e.getAttribute("data-id")));
+    let idMaxGallery = Math.max(...Array.from(galleryEditElt.children).map(e => e.getAttribute("data-id")));
+    this.id = Math.max(idMaxArray, idMaxGallery) + 1;//on récup le data max et on ajoute 1
     this.imageUrl = imageUrl;
     this.title = title;
     this.categoryId = categoryId;
@@ -40,7 +42,6 @@ title.addEventListener("input", validateForm);
 category.addEventListener("change", validateForm);
 preview.addEventListener("click", ()=> {imageFile.click();});
 
-
 async function getData(url) {
   try {
     const response = await fetch(url);
@@ -53,7 +54,6 @@ async function getData(url) {
     console.error("Fetch Error", error);
   }
 }
-
 
 function createImage(src, alt) {
   let img = document.createElement("img");
@@ -168,8 +168,8 @@ function deleteWork(event) {
   let dataId = event.target.closest("figure").dataset.id;
   let textImg = event.target.closest("figure").querySelector("img").alt;
   let response = confirm(`Supprimer le projet : ${textImg} ?`);
-    if (response) 
-      removeWorkFromColl(galleryEditElt, dataId);
+  if (response)
+    removeWorkFromColl(galleryEditElt, dataId);
 }
 
 function fillEditWithAllWorks() {
@@ -201,14 +201,15 @@ function updateWorksUI(filters) {
 
     if (filters.has(workFilter) && !galleryElt.contains(work)) {
       galleryElt.appendChild(work); //si le filtre le contient mais pas la galerie : on l'ajoute
-    } else if (!filters.has(workFilter) && galleryElt.contains(work)) {
+    } 
+    else if (!filters.has(workFilter) && galleryElt.contains(work)) {
       galleryElt.removeChild(work); //si le filtre ne le contient pas mais la galerie oui : on le retire
     }
   }
 }
 
 async function filterClick(event) {
-  if (buttonSelectedElt === event.target) return; //même bouton, on quitte
+  if (buttonSelectedElt === event.target) return;
 
   const buttonFilter = event.target;
   updateButtonStyle(buttonFilter);
@@ -268,11 +269,11 @@ async function updateWorks (worksDel, worksAdd) {
   await deleteBDDWork(token, worksDel);
 
   if (worksAdd.size > 0)
-  await addBDDWork(token, worksAdd);
+  await addBDDWork(token,galleryEditElt.children, worksAdd);
 
-  alert("Modifications enregistrées !");
   clearElt (galleryElt);
-  fillWorks();
+  await fillWorks();
+  alert("Modifications enregistrées !");
 }
 
 async function deleteBDDWork(token, worksDel) {
@@ -292,19 +293,26 @@ async function deleteBDDWork(token, worksDel) {
       }
 }
 
-async function addBDDWork (token, worksAdd) {
-//TODO : worksAdd = set des works ajoutes dans galleryeditelt(index) l'id ne sert pas  (primary autoincrement id sql) 
+async function createFormData (e) {
+  let formData = new FormData();
+  let toBinary = await fetch(e.querySelector("img").src);//il faut reconvertir src en blob (Binary Large Object)
+  let blob = await toBinary.blob();
+  formData.append("image", blob);
+  formData.append("title", e.querySelector("img").alt);
+  formData.append("category", e.getAttribute("data-categoryId"));
+  return formData;
+}
+
+async function addBDDWork (token, collection, worksAdd) {
   for (let id of worksAdd) 
     try {
-      let formData = new FormData();
-      formData.append("image", image);
-      formData.append("title", title);
-      formData.append("category", categorieID);
+      let figure = Array.from(collection).find(e => e.getAttribute("data-id") == id);
+      let formData = await createFormData (figure);
 
       const response = await fetch(API_WORKS, {
         method: "POST",
         headers: {'Authorization': `Bearer ${token}`},
-        body: formData,
+        body: formData
       });
 
       if (!response.ok) 
@@ -354,10 +362,13 @@ function showHideGallery (event)
 
 function loadFile(e) {
   const file = e.target.files[0];
-  
-  if (file.size > MAX_FILE_SIZE) {
-    alert("La taille du fichier dépasse 4mo !");
+
+  if (!file || file.size > MAX_FILE_SIZE) {
+    updateProperty("#preview", "display", "none");
+    updateProperty("#elemsContainer", "display", "flex");
     e.target.value = "";
+    if (file.size > MAX_FILE_SIZE)
+    alert("La taille du fichier dépasse 4mo !");
   }
   else {
     let reader = new FileReader();
@@ -367,7 +378,7 @@ function loadFile(e) {
         elemsContainer.style.display = "none";
     });
     reader.readAsDataURL(file);
-}
+  }
 }
 
 function validateForm() {
@@ -408,7 +419,7 @@ window.onclick = (event)=> {
   }
 }
 
-publishModifs.onclick = ()=> {
+publishModifs.onclick = async ()=> {
   let setNew = new Set(Array.from(galleryEditElt.children).map(e => e.getAttribute("data-id")));
   let setOld = new Set(galleryWorks.map(e => e.getAttribute("data-id")));
   let worksDel = new Set([...setOld].filter(x => !setNew.has(x)));
@@ -422,7 +433,7 @@ publishModifs.onclick = ()=> {
 
   let response = confirm("Publier les changements effectués ?");
   if (response)
-  updateWorks (worksDel,worksAdd);
+  await updateWorks (worksDel,worksAdd);
 }
 
   fillWorks();
@@ -430,5 +441,3 @@ publishModifs.onclick = ()=> {
 
   if (localStorage.getItem("token"))
     hideShowEdition(true);
-
-
