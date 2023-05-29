@@ -1,5 +1,5 @@
 "use strict";
-debugger;
+
 document.querySelector("ul li:nth-child(3)").style.fontWeight = "bold";
 
 const API_LOGIN = "http://localhost:5678/api/users/login";

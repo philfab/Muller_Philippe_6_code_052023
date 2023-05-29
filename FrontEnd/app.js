@@ -110,9 +110,6 @@ function createNav(buttonExpand,buttonTrash) {
 
 /**
  * Fonction asynchrone pour remplir la galerie depuis le backend à partir de l'API.
- * Crée des éléments figure, nav, et deux boutons en haut à droite de chaque image en mode édition.
- * Crée le tableau "galleryWorks" à partir de de l'htmlcollection galleryElt.children pour ne pas appeller
- * l'API à chaque demande.
  *
  * @async
  */
@@ -140,7 +137,7 @@ function fillWithAllWorks() {
 
 /**
  * Supprime un élément d'une collection depuis son attribut data-id.
- * La collection est convertie en tableau puis itère sur chaque item pour checker son data-id et le supprime.
+ * La collection est convertie en tableau puis itère sur chaque item pour checker son data-id et le supprimer.
  *
  * @param {HTMLElement} collection - La collection HTML.
  * @param {string} dataId - La valeur de l'attribut data-id.
@@ -150,7 +147,7 @@ function removeWorkFromColl(collection, dataId) {
 }
 
 /**
- * Idem mais avec un tableau. On supprime par rapport à l'index qui est récupéré grâce à son data-id.
+ * Supprime un élément d'un tableau depuis son attribut data-id.
  *
  * @param {Array} array - Le tableau à partir duquel supprimer un élément.
  * @param {string} dataId - La valeur de l'attribut data-id de l'élément à supprimer.
@@ -248,19 +245,20 @@ async function createFilterButtons() {
   }
 }
 
+function displayEdition (log, displayMode, marginBottom) {
+  loginNavElt.textContent = log;
+  filterElt.style.visibility = displayMode;
+  filterElt.style.marginBottom = marginBottom;
+}
+
 function hideShowEdition (action) {
-  if (action) {
-    loginNavElt.textContent = "logout";
-    filterElt.style.visibility = "hidden";
-    filterElt.style.marginBottom = 0;
-  }
-  else {
-    loginNavElt.textContent = "login";
-    filterElt.style.visibility = "visible";
-    filterElt.style.marginBottom = "50px";
-  }
+  if (action)
+    displayEdition ("logout", "hidden", "0");
+  else
+    displayEdition ("login", "visible", "50px");
+
   document.querySelectorAll(".edit").forEach(e => e.style.display = (action) ? "inline-block" : "none");
-} 
+}
 
 async function updateWorks (worksDel, worksAdd) {
   const token = localStorage.getItem("token");
@@ -388,34 +386,38 @@ function validateForm() {
     validateButton.disabled = true;
   }
 
-  function submitForm(event) {//les données ont été check dans validateForm
-    event.preventDefault();
-    let formData = new TempFormData(preview.src, title.value, category.value);
-    let figure = createFigure(formData);
-    const buttonExpand = createButton("icon-button","fas fa-arrows-up-down-left-right");
-    const buttonTrash = createButton ("icon-button icon-trash","fas fa-trash-can");
-    buttonTrash.onclick = deleteWork;
-    const nav = createNav(buttonExpand,buttonTrash);
-    figure.appendChild(nav);
-    galleryEditElt.appendChild(figure);
-    showHideGallery (null);
+function submitForm(event) {//les données ont été check dans validateForm
+  event.preventDefault();
+  let formData = new TempFormData(preview.src, title.value, category.value);
+  let figure = createFigure(formData);
+  const buttonExpand = createButton("icon-button","fas fa-arrows-up-down-left-right");
+  const buttonTrash = createButton ("icon-button icon-trash","fas fa-trash-can");
+  buttonTrash.onclick = deleteWork;
+  const nav = createNav(buttonExpand,buttonTrash);
+  figure.appendChild(nav);
+  galleryEditElt.appendChild(figure);
+  showHideGallery (null);
+}
+
+function displayModal (displayStyle, aria)
+  {
+    modalElt.style.display = displayStyle;
+    showModal.setAttribute("aria-expanded", aria);
   }
 
 showModal.onclick = ()=> {
   showHideGallery (null);
-  modalElt.style.display = "flex";
-  showModal.setAttribute("aria-expanded", "true");//contenu accéssibilité associé au bouton visible (aria)
+  displayModal ("flex", "true");
 }
 
 hideModal.onclick = ()=> {
   modalElt.style.display = "none";
-  showModal.setAttribute("aria-expanded", "false");//hidden
+  displayModal ("none", "false");
 }
 
 window.onclick = (event)=> {
   if (event.target === modalElt) {
-    modalElt.style.display = "none";
-    showModal.setAttribute("aria-expanded", "false");
+    displayModal ("none", "false");
   }
 }
 
