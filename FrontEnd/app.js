@@ -41,6 +41,7 @@ imageFile.addEventListener("change", validateForm);
 title.addEventListener("input", validateForm);
 category.addEventListener("change", validateForm);
 preview.addEventListener("click", ()=> {imageFile.click();});
+Array.from(document.getElementsByClassName("back-modal")).forEach(b => b.addEventListener("click", showHideGallery));
 
 async function getData(url) {
   try {
